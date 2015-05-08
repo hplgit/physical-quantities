@@ -1,5 +1,8 @@
 # physical-quantities
-The PhysicalQuantity class made independent of [K. Hinsen's ScientificPython package](https://bitbucket.org/khinsen/scientificpython/). This class is very useful for computation involving *numbers with units*. Here is an example:
+
+The PhysicalQuantity class made independent of [K. Hinsen's ScientificPython package](https://bitbucket.org/khinsen/scientificpython/). This class is very useful for computation involving *numbers with units*.
+
+## Demo
 
 ```python
     >>> from PhysicalQuantities import PhysicalQuantity as p  # short hand
@@ -47,7 +50,22 @@ pydoc PhysicalQuantities
 to see an overview of all the physical units and their notation supported
 by the `PhysicalQuantities` module.
 
-_Note:_ The `PhysicalQuantities` module was developed by Dr. Konrad Hinsen
+## Installation
+
+```
+sudo pip install  -e git+https://github.com/hplgit/physical-quantities.git#egg=physical-quantities
+```
+
+Or
+```
+git clone https://github.com/hplgit/physical-quantities.git
+cd physical-quantities
+sudo python setup.py install
+```
+
+## Note
+
+The `PhysicalQuantities` module was developed by Dr. Konrad Hinsen
 and appears in the [ScientificPython package](https://bitbucket.org/khinsen/scientificpython/). Unfortunately, ScientificPython requires NumPy version 1.8 or
 less, and that is why H. P. Langtangen made this `PhysicalQuantities`
 module independent of the ScientificPython package such that it is easy
