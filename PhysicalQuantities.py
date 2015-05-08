@@ -24,11 +24,48 @@ the correct unit. A quantity can be raised to a non-integer
 power only if the result can be represented by integer powers
 of the base units.
 
+Here is an example of working with this module::
+
+>>> from PhysicalQuantities import PhysicalQuantity as PQ
+>>> v = PQ('120 yd/min')   # velocity: yards per minute
+>>> t = PQ('1 h')          # time: hours
+>>> s = v*t                # distance
+>>> print s                # s is string
+120.0 h*yd/min
+>>> print s.getValue()     # florat
+120.0
+>>> print s.getUnitName()  # string
+h*yd/min
+>>> s.convertToUnit('m')
+>>> print s
+6583.68 m
+>>> v.convertToUnit('km/h')
+>>> print v
+6.58368 km/h
+>>> v.convertToUnit('m/s')
+>>> print v
+1.8288 m/s
+>>>
+>>> c = PQ('1 cal/g/K')          # heat capacity of water
+>>> c.convertToUnit('J/(g*K)')   # standard SI unit
+>>> print c
+4.184 J/K/g
+
 The values of physical constants are taken from the 1986
 recommended values from CODATA. Other conversion factors
 (e.g. for British units) come from various sources. I can't
 guarantee for the correctness of all entries in the unit
 table, so use this at your own risk.
+
+Basic SI units:
+s    second
+m    meter
+kg   kilogram
+A    ampere
+K    kelvin
+mol  mole
+cd   candela
+
 """
 
 class NumberDict(dict):
