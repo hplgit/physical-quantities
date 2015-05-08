@@ -32,7 +32,7 @@ Here is an example of working with this module::
 >>> s = v*t                # distance
 >>> print s                # s is string
 120.0 h*yd/min
->>> print s.getValue()     # florat
+>>> print s.getValue()     # float
 120.0
 >>> print s.getUnitName()  # string
 h*yd/min
