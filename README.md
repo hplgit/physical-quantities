@@ -70,3 +70,9 @@ and appears in the [ScientificPython package](https://bitbucket.org/khinsen/scie
 less, and that is why H. P. Langtangen made this `PhysicalQuantities`
 module independent of the ScientificPython package such that it is easy
 in any project to compute with units.
+
+## Python 3 version
+
+The `PhysicalQuantities.py` file in the present directory is for Python 2.
+There is an experimental Python 3 version in the subdirectory `py23`,
+which depends on the `future` package.

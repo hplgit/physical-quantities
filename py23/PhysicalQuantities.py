@@ -9,7 +9,7 @@
 # than 1.8.
 # (The NumberDict class is included and Scientific.N is
 # replaced by numpy. Modifications by H. P. Langtangen
-# <hpl@simula.no>. To test: py.test/nosetests -s -v PhysicalQuantities.py)
+# <hpl@simula.no>, including port to Python 3 via futurize.)
 
 """
 Physical quantities with units.
@@ -30,25 +30,25 @@ Here is an example of working with this module::
 >>> v = PQ('120 yd/min')   # velocity: yards per minute
 >>> t = PQ('1 h')          # time: hours
 >>> s = v*t                # distance
->>> print s                # s is string
+>>> print(s)               # s is string
 120.0 h*yd/min
->>> print s.getValue()     # float
+>>> print(s.getValue())    # float
 120.0
->>> print s.getUnitName()  # string
+>>> print(s.getUnitName()) # string
 h*yd/min
 >>> s.convertToUnit('m')
->>> print s
+>>> print(s)
 6583.68 m
 >>> v.convertToUnit('km/h')
->>> print v
+>>> print(v)
 6.58368 km/h
 >>> v.convertToUnit('m/s')
->>> print v
+>>> print(v)
 1.8288 m/s
 >>>
 >>> c = PQ('1 cal/g/K')          # heat capacity of water
 >>> c.convertToUnit('J/(g*K)')   # standard SI unit
->>> print c
+>>> print(c)
 4.184 J/K/g
 
 The values of physical constants are taken from the 1986
@@ -67,6 +67,19 @@ mol  mole
 cd   candela
 
 """
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import absolute_import
+from past.builtins import cmp
+from future import standard_library
+from functools import reduce
+standard_library.install_aliases()
+from builtins import map
+from builtins import str
+from builtins import range
+from past.builtins import basestring
+from builtins import *
+from builtins import object
 
 class NumberDict(dict):
 
@@ -95,30 +108,30 @@ class NumberDict(dict):
 
     def __add__(self, other):
         sum_dict = NumberDict()
-        for key in self.keys():
+        for key in list(self.keys()):
             sum_dict[key] = self[key]
-        for key in other.keys():
+        for key in list(other.keys()):
             sum_dict[key] = sum_dict[key] + other[key]
         return sum_dict
 
     def __sub__(self, other):
         sum_dict = NumberDict()
-        for key in self.keys():
+        for key in list(self.keys()):
             sum_dict[key] = self[key]
-        for key in other.keys():
+        for key in list(other.keys()):
             sum_dict[key] = sum_dict[key] - other[key]
         return sum_dict
 
     def __mul__(self, other):
         new = NumberDict()
-        for key in self.keys():
+        for key in list(self.keys()):
             new[key] = other*self[key]
         return new
     __rmul__ = __mul__
 
     def __div__(self, other):
         new = NumberDict()
-        for key in self.keys():
+        for key in list(self.keys()):
             new[key] = self[key]/other
         return new
 
@@ -129,7 +142,7 @@ import re, string
 
 # Class definitions
 
-class PhysicalQuantity:
+class PhysicalQuantity(object):
 
     """
     Physical quantity with units
@@ -221,8 +234,8 @@ class PhysicalQuantity:
         return str(self.value) + ' ' + self.unit.name()
 
     def __repr__(self):
-        return (self.__class__.__name__ + '(' + `self.value` + ',' +
-                `self.unit.name()` + ')')
+        return (self.__class__.__name__ + '(' + repr(self.value) + ',' +
+                repr(self.unit.name()) + ')')
 
     def _sum(self, other, sign1, sign2):
         if not isPhysicalQuantity(other):
@@ -297,7 +310,7 @@ class PhysicalQuantity:
     def __neg__(self):
         return self.__class__(-self.value, self.unit)
 
-    def __nonzero__(self):
+    def __bool__(self):
         return self.value != 0
 
     def convertToUnit(self, unit):
@@ -334,7 +347,7 @@ class PhysicalQuantity:
         @raises TypeError: if any of the specified units are not compatible
         with the original unit
         """
-        units = map(_findUnit, units)
+        units = list(map(_findUnit, units))
         if len(units) == 1:
             unit = units[0]
             value = _convertValue (self.value, self.unit, unit)
@@ -365,7 +378,7 @@ class PhysicalQuantity:
         new_value = self.value * self.unit.factor
         num = ''
         denom = ''
-        for i in xrange(9):
+        for i in range(9):
             unit = _base_names[i]
             power = self.unit.powers[i]
             if power < 0:
@@ -426,7 +439,7 @@ class PhysicalQuantity:
             raise TypeError('Argument of tan must be an angle')
 
 
-class PhysicalUnit:
+class PhysicalUnit(object):
 
     """
     Physical unit
@@ -476,8 +489,8 @@ class PhysicalUnit:
         if isPhysicalUnit(other):
             return PhysicalUnit(self.names+other.names,
                                 self.factor*other.factor,
-                                map(lambda a,b: a+b,
-                                    self.powers, other.powers))
+                                list(map(lambda a,b: a+b,
+                                    self.powers, other.powers)))
         else:
             return PhysicalUnit(self.names+{str(other): 1},
                                 self.factor*other,
@@ -492,8 +505,8 @@ class PhysicalUnit:
         if isPhysicalUnit(other):
             return PhysicalUnit(self.names-other.names,
                                 self.factor/other.factor,
-                                map(lambda a,b: a-b,
-                                    self.powers, other.powers))
+                                list(map(lambda a,b: a-b,
+                                    self.powers, other.powers)))
         else:
             return PhysicalUnit(self.names+{str(other): -1},
                                 self.factor/other, self.powers)
@@ -506,30 +519,30 @@ class PhysicalUnit:
         if isPhysicalUnit(other):
             return PhysicalUnit(other.names-self.names,
                                 other.factor/self.factor,
-                                map(lambda a,b: a-b,
-                                    other.powers, self.powers))
+                                list(map(lambda a,b: a-b,
+                                    other.powers, self.powers)))
         else:
             return PhysicalUnit({str(other): 1}-self.names,
                                 other/self.factor,
-                                map(lambda x: -x, self.powers))
+                                [-x for x in self.powers])
 
     def __pow__(self, other):
         if self.offset != 0:
             raise TypeError("cannot exponentiate units with non-zero offset")
         if isinstance(other, int):
             return PhysicalUnit(other*self.names, pow(self.factor, other),
-                                map(lambda x,p=other: x*p, self.powers))
+                                list(map(lambda x,p=other: x*p, self.powers)))
         if isinstance(other, float):
             inv_exp = 1./other
             rounded = int(N.floor(inv_exp+0.5))
             if abs(inv_exp-rounded) < 1.e-10:
                 if reduce(lambda a, b: a and b,
-                          map(lambda x, e=rounded: x%e == 0, self.powers)):
+                          list(map(lambda x, e=rounded: x%e == 0, self.powers))):
                     f = pow(self.factor, other)
-                    p = map(lambda x,p=rounded: x/p, self.powers)
+                    p = list(map(lambda x,p=rounded: x/p, self.powers))
                     if reduce(lambda a, b: a and b,
-                              map(lambda x, e=rounded: x%e == 0,
-                                  self.names.values())):
+                              list(map(lambda x, e=rounded: x%e == 0,
+                                  list(self.names.values())))):
                         names = self.names/rounded
                     else:
                         names = NumberDict()
@@ -585,7 +598,7 @@ class PhysicalUnit:
         #   = ( (x+d1) - (d1*s2/s1) ) * s1/s2
         #   = (x + d1 - d2*s2/s1) * s1/s2
         # thus, D = d1 - d2*s2/s1 and S = s1/s2
-        factor = self.factor / other.factor
+        factor = self.factor/other.factor
         offset = self.offset - (other.offset * other.factor / self.factor)
         return (factor, offset)
 
@@ -613,7 +626,7 @@ class PhysicalUnit:
     def name(self):
         num = ''
         denom = ''
-        for unit in self.names.keys():
+        for unit in list(self.names.keys()):
             power = self.names[unit]
             if power < 0:
                 denom = denom + '/' + unit
@@ -722,8 +735,8 @@ for unit in _base_units:
 _help = []
 
 def _addUnit(name, unit, comment=''):
-    if _unit_table.has_key(name):
-        raise KeyError, 'Unit ' + name + ' already defined'
+    if name in _unit_table:
+        raise KeyError('Unit ' + name + ' already defined')
     if comment:
         _help.append((name, comment, unit))
     if type(unit) == type(''):
@@ -773,7 +786,7 @@ _addUnit('Sv', 'J/kg', 'Sievert')
 
 del _unit_table['kg']
 
-for unit in _unit_table.keys():
+for unit in list(_unit_table.keys()):
     _addPrefixed(unit)
 
 # Fundamental constants
@@ -906,7 +919,7 @@ def description():
             s += '%-8s  %-26s %s\n' % (name, comment, unit)
         else:
             # impossible
-            raise TypeError, 'wrong construction of _help list'
+            raise TypeError('wrong construction of _help list')
     return s
 
 def test_PQ():
@@ -924,7 +937,6 @@ def test_PQ():
     c = PQ('1 cal/g/K')          # heat capacity of water
     c.convertToUnit('J/(g*K)')   # standard SI unit
     assert str(c) == '4.184 J/K/g'
-
 
 def demo():
     # Some demonstration code. Run with "python -i PhysicalQuantities.py"
@@ -947,9 +959,6 @@ def demo():
 
 # add the description of the units to the module's doc string:
 __doc__ += '\n' + description()
-
-# Some demonstration code. Run with "python -i PhysicalQuantities.py"
-# to have this available.
 
 if __name__ == '__main__':
     demo()
